@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三角関数・対数の微積分</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+  :root {
+    --ink: #1a1209;
+    --paper: #faf6ef;
+    --cream: #f0e9d8;
+    --amber: #c97c1a;
+    --amber-light: #e8a83e;
+    --rust: #9b3a1a;
+    --sage: #3d6b55;
+    --sage-light: #5a8f73;
+    --indigo: #2c3e6b;
+    --gold: #d4a843;
+    --shadow: rgba(26,18,9,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Serif JP', serif;
+    font-size: 15px;
+    line-height: 1.85;
+    overflow-x: hidden;
+  }
+
+  /* Grain texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* Header */
+  .hero {
+    position: relative;
+    min-height: 340px;
+    background: var(--indigo);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 60px 24px;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 20% 50%, rgba(196,143,59,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 80% at 80% 30%, rgba(61,107,85,0.2) 0%, transparent 70%),
+      linear-gradient(135deg, #1a2244 0%, #2c3e6b 50%, #1e3050 100%);
+  }
+
+  /* Decorative math symbols in background */
+  .hero-symbols {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    opacity: 0.06;
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+    font-size: 28px;
+  }
+
+  .hero-sym {
+    position: absolute;
+    animation: floatSym 12s ease-in-out infinite;
+  }
+
+  @keyframes floatSym {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+
+  .hero-content {
+    position: relative;
+    text-align: center;
+    color: #fff;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--amber-light);
+    margin-bottom: 18px;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--amber-light);
+  }
+
+  .hero-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.05em;
+    margin-top: 8px;
+  }
+
+  /* Decorative divider */
+  .hero-ornament {
+    margin: 20px auto 0;
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--amber-light), transparent);
+  }
+
+  /* Navigation tabs */
+  .nav-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,246,239,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,124,26,0.2);
+    box-shadow: 0 2px 20px var(--shadow);
+  }
+
+  .nav-tabs {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 16px;
+    gap: 2px;
+  }
+
+  .nav-tabs::-webkit-scrollbar { display: none; }
+
+  .nav-tab {
+    flex-shrink: 0;
+    padding: 14px 18px;
+    font-size: 12.5px;
+    font-family: 'Noto Serif JP', serif;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #8a7a60;
+    border-bottom: 3px solid transparent;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    font-weight: 400;
+  }
+
+  .nav-tab:hover { color: var(--amber); }
+  .nav-tab.active {
+    color: var(--amber);
+    border-bottom-color: var(--amber);
+    font-weight: 600;
+  }
+
+  /* Main layout */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* Section */
+  .section {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .section.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 36px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(201,124,26,0.25);
+  }
+
+  .section-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    color: rgba(201,124,26,0.2);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .section-title-wrap h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--indigo);
+    line-height: 1.2;
+  }
+
+  .section-title-wrap p {
+    font-size: 12.5px;
+    color: #8a7a60;
+    margin-top: 4px;
+    letter-spacing: 0.03em;
+  }
+
+  /* Cards */
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 16px var(--shadow), 0 0 0 1px rgba(201,124,26,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 12px 0 0 12px;
+  }
+
+  .card.trig::before { background: linear-gradient(180deg, var(--amber), var(--rust)); }
+  .card.log::before { background: linear-gradient(180deg, var(--sage), #2a5e40); }
+  .card.advanced::before { background: linear-gradient(180deg, var(--indigo), #1a2244); }
+  .card.formula::before { background: linear-gradient(180deg, var(--gold), #b8882a); }
+  .card.example::before { background: linear-gradient(180deg, #7c6b9b, #4a3570); }
+
+  .card-label {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+
+  .label-trig { background: rgba(201,124,26,0.12); color: var(--rust); }
+  .label-log { background: rgba(61,107,85,0.12); color: var(--sage); }
+  .label-formula { background: rgba(212,168,67,0.15); color: #8a6a10; }
+  .label-example { background: rgba(124,107,155,0.12); color: #4a3570; }
+  .label-key { background: rgba(44,62,107,0.12); color: var(--indigo); }
+
+  .card h3 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  /* Formula display */
+  .formula-box {
+    background: var(--cream);
+    border: 1px solid rgba(201,124,26,0.2);
+    border-radius: 8px;
+    padding: 18px 24px;
+    margin: 16px 0;
+    text-align: center;
+    font-size: 1.1em;
+    overflow-x: auto;
+  }
+
+  /* Example steps */
+  .example-steps {
+    margin-top: 16px;
+  }
+
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--indigo);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .step-content {
+    flex: 1;
+    line-height: 1.7;
+  }
+
+  .step-content .note {
+    font-size: 12.5px;
+    color: #8a7a60;
+    margin-top: 6px;
+    padding-left: 12px;
+    border-left: 2px solid rgba(201,124,26,0.3);
+  }
+
+  /* Two column grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 680px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  /* Reference table */
+  .ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 16px 0;
+  }
+
+  .ref-table th {
+    background: var(--indigo);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .ref-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(201,124,26,0.12);
+  }
+
+  .ref-table tr:nth-child(even) td { background: rgba(250,246,239,0.7); }
+  .ref-table tr:hover td { background: rgba(201,124,26,0.06); }
+
+  /* Highlight box */
+  .highlight {
+    background: linear-gradient(135deg, rgba(201,124,26,0.08), rgba(201,124,26,0.04));
+    border: 1px solid rgba(201,124,26,0.25);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+
+  .highlight strong { color: var(--rust); }
+
+  /* Tip box */
+  .tip {
+    background: linear-gradient(135deg, rgba(61,107,85,0.08), rgba(61,107,85,0.04));
+    border-left: 3px solid var(--sage);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: #2a4a38;
+  }
+
+  .tip::before {
+    content: '💡 ';
+    font-style: normal;
+  }
+
+  /* Warning box */
+  .warn {
+    background: rgba(155,58,26,0.06);
+    border-left: 3px solid var(--rust);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: var(--rust);
+  }
+
+  .warn::before { content: '⚠️ '; }
+
+  /* Progress indicator */
+  .progress-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 32px;
+    align-items: center;
+  }
+
+  .prog-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(201,124,26,0.2);
+    transition: all 0.3s;
+  }
+
+  .prog-dot.done { background: var(--amber); }
+
+  .prog-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(201,124,26,0.15);
+  }
+
+  /* Answer toggle */
+  .toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 8px 16px;
+    border: 1px solid var(--amber);
+    border-radius: 20px;
+    background: none;
+    color: var(--amber);
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .toggle-btn:hover { background: var(--amber); color: #fff; }
+
+  .toggle-content {
+    display: none;
+    margin-top: 14px;
+    padding: 16px;
+    background: var(--cream);
+    border-radius: 8px;
+  }
+
+  .toggle-content.open { display: block; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(201,124,26,0.3); border-radius: 3px; }
+
+  /* Print/export feel */
+  .page-rule {
+    border: none;
+    border-top: 1px dashed rgba(201,124,26,0.25);
+    margin: 32px 0;
+  }
+
+  .subsection-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--indigo);
+    margin: 28px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .subsection-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(44,62,107,0.3), transparent);
+  }
+
+  p { margin-bottom: 12px; }
+
+  mjx-container { overflow-x: auto; max-width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-symbols">
+    <span class="hero-sym" style="top:10%;left:5%;animation-delay:0s">sin x</span>
+    <span class="hero-sym" style="top:60%;left:8%;animation-delay:2s">∫</span>
+    <span class="hero-sym" style="top:20%;right:6%;animation-delay:1s">log x</span>
+    <span class="hero-sym" style="top:70%;right:10%;animation-delay:3s">d/dx</span>
+    <span class="hero-sym" style="top:40%;left:50%;animation-delay:1.5s">cos x</span>
+    <span class="hero-sym" style="top:80%;left:40%;animation-delay:0.5s">e^x</span>
+    <span class="hero-sym" style="top:15%;left:35%;animation-delay:2.5s">tan x</span>
+  </div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Calculus Complete Guide</div>
+    <h1 class="hero-title">三角関数・対数の<br><em>微積分</em></h1>
+    <p class="hero-sub">基礎から発展まで — 例題と共に体系的に学ぶ</p>
+    <div class="hero-ornament"></div>
+  </div>
+</div>
+
+<div class="nav-wrap">
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showSection(0)">📐 基礎知識</button>
+    <button class="nav-tab" onclick="showSection(1)">∂ 三角関数の微分</button>
+    <button class="nav-tab" onclick="showSection(2)">∫ 三角関数の積分</button>
+    <button class="nav-tab" onclick="showSection(3)">㏒ 対数の微分</button>
+    <button class="nav-tab" onclick="showSection(4)">∫ 対数の積分</button>
+    <button class="nav-tab" onclick="showSection(5)">🔬 発展・応用</button>
+    <button class="nav-tab" onclick="showSection(6)">📋 公式一覧</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ===== SECTION 0: 基礎知識 ===== -->
+  <div class="section active" id="sec0">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title-wrap">
+        <h2>基礎知識と準備</h2>
+        <p>微積分を学ぶ前に押さえておくべき前提知識</p>
+      </div>
+    </div>
+
+    <div class="card formula">
+      <span class="card-label label-key">微分の定義</span>
+      <h3>導関数とは何か</h3>
+      <p>関数 \(f(x)\) の導関数は、次の極限として定義されます：</p>
+      <div class="formula-box">
+        \[f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}\]
+      </div>
+      <p>これは「その点における接線の傾き」を意味し、関数の変化率を表します。</p>
+      <div class="tip">微分は「瞬間の変化率」、積分は「面積の累積」というイメージで捉えましょう。</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card trig">
+        <span class="card-label label-trig">三角関数</span>
+        <h3>ラジアンと基本値</h3>
+        <table class="ref-table">
+          <tr><th>角度</th><th>rad</th><th>sin</th><th>cos</th><th>tan</th></tr>
+          <tr><td>0°</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+          <tr><td>30°</td><td>π/6</td><td>1/2</td><td>√3/2</td><td>1/√3</td></tr>
+          <tr><td>45°</td><td>π/4</td><td>1/√2</td><td>1/√2</td><td>1</td></tr>
+          <tr><td>60°</td><td>π/3</td><td>√3/2</td><td>1/2</td><td>√3</td></tr>
+          <tr><td>90°</td><td>π/2</td><td>1</td><td>0</td><td>∞</td></tr>
+        </table>
+      </div>
+      <div class="card log">
+        <span class="card-label label-log">対数</span>
+        <h3>対数の基本性質</h3>
+        <div class="formula-box" style="text-align:left;font-size:0.95em">
+          \[\log_a xy = \log_a x + \log_a y\]
+          \[\log_a \frac{x}{y} = \log_a x - \log_a y\]
+          \[\log_a x^n = n\log_a x\]
+          \[\log_a b = \frac{\ln b}{\ln a}\]
+        </div>
+        <div class="tip">微積分では底が \(e\) の自然対数 \(\ln x\) が最もよく使われます。</div>
+      </div>
+    </div>
+
+    <div class="card formula">
+      <span class="card-label label-key">微分の基本公式</span>
+      <h3>計算に必要な基本公式</h3>
+      <div class="grid-2">
+        <div>
+          <p><strong>積の微分：</strong></p>
+          <div class="formula-box">\[(fg)' = f'g + fg'\]</div>
+          <p><strong>商の微分：</strong></p>
+          <div class="formula-box">\[\left(\frac{f}{g}\right)' = \frac{f'g - fg'}{g^2}\]</div>
+        </div>
+        <div>
+          <p><strong>合成関数の微分（連鎖律）：</strong></p>
+          <div class="formula-box">\[\frac{d}{dx}f(g(x)) = f'(g(x)) \cdot g'(x)\]</div>
+          <p><strong>べき乗の微分：</strong></p>
+          <div class="formula-box">\[\frac{d}{dx}x^n = nx^{n-1}\]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 1: 三角関数の微分 ===== -->
+  <div class="section" id="sec1">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-title-wrap">
+        <h2>三角関数の微分</h2>
+        <p>sin, cos, tan とその応用</p>
+      </div>
+    </div>
+
+    <div class="card trig">
+      <span class="card-label label-trig">基本公式</span>
+      <h3>三角関数の微分公式</h3>
+      <table class="ref-table">
+        <tr><th>元の関数</th><th>導関数</th></tr>
+        <tr><td>\(\sin x\)</td><td>\(\cos x\)</td></tr>
+        <tr><td>\(\cos x\)</td><td>\(-\sin x\)</td></tr>
+        <tr><td>\(\tan x\)</td><td>\(\dfrac{1}{\cos^2 x} = \sec^2 x\)</td></tr>
+        <tr><td>\(\cot x\)</td><td>\(-\dfrac{1}{\sin^2 x} = -\csc^2 x\)</td></tr>
+        <tr><td>\(\sec x\)</td><td>\(\sec x \tan x\)</td></tr>
+        <tr><td>\(\csc x\)</td><td>\(-\csc x \cot x\)</td></tr>
+      </table>
+      <div class="tip">\(\sin\) を微分すると \(\cos\)、\(\cos\) を微分すると \(-\sin\) — 4回微分すると元に戻ります。</div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 1</span>
+      <h3>\(f(x) = \sin x\) の微分を定義から導く</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            定義を適用：
+            <div class="formula-box">\[f'(x) = \lim_{h \to 0} \frac{\sin(x+h) - \sin x}{h}\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            加法定理 \(\sin(x+h) = \sin x \cos h + \cos x \sin h\) を使う：
+            <div class="formula-box">\[= \lim_{h \to 0} \frac{\sin x \cos h + \cos x \sin h - \sin x}{h}\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            整理：
+            <div class="formula-box">\[= \lim_{h \to 0} \left[\sin x \cdot \frac{\cos h - 1}{h} + \cos x \cdot \frac{\sin h}{h}\right]\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            重要極限 \(\displaystyle\lim_{h\to 0}\frac{\sin h}{h} = 1\)、\(\displaystyle\lim_{h\to 0}\frac{\cos h - 1}{h} = 0\) を用いる：
+            <div class="formula-box">\[f'(x) = \sin x \cdot 0 + \cos x \cdot 1 = \boxed{\cos x}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 2</span>
+      <h3>合成関数の微分</h3>
+      <p>次の関数を微分せよ：\(f(x) = \sin(3x^2 + 1)\)</p>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            外側の関数 \(\sin(\square)\) の微分は \(\cos(\square)\)、内側 \(u = 3x^2+1\) の微分は \(u' = 6x\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            連鎖律を適用：
+            <div class="formula-box">\[f'(x) = \cos(3x^2+1) \cdot 6x = \boxed{6x\cos(3x^2+1)}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 3</span>
+      <h3>積の微分</h3>
+      <p>\(f(x) = x^2 \sin x\) を微分せよ</p>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            \(f = x^2\)、\(g = \sin x\) とおく。\(f' = 2x\)、\(g' = \cos x\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            積の微分公式 \((fg)' = f'g + fg'\) を適用：
+            <div class="formula-box">\[f'(x) = 2x\sin x + x^2\cos x = \boxed{x(2\sin x + x\cos x)}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 4</span>
+      <h3>\(\tan x\) の微分を導く</h3>
+      <p>\(\tan x = \dfrac{\sin x}{\cos x}\) を商の微分公式で求める</p>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            商の公式：\(\displaystyle\left(\frac{\sin x}{\cos x}\right)' = \frac{\cos x \cdot \cos x - \sin x \cdot (-\sin x)}{\cos^2 x}\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            分子を整理：\(\cos^2 x + \sin^2 x = 1\)
+            <div class="formula-box">\[(\tan x)' = \frac{1}{\cos^2 x} = \boxed{\sec^2 x}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection-title">逆三角関数の微分</div>
+
+    <div class="card trig">
+      <span class="card-label label-trig">逆三角関数</span>
+      <h3>逆三角関数の微分公式</h3>
+      <table class="ref-table">
+        <tr><th>関数</th><th>導関数</th><th>定義域</th></tr>
+        <tr><td>\(\arcsin x\)</td><td>\(\dfrac{1}{\sqrt{1-x^2}}\)</td><td>\(|x| < 1\)</td></tr>
+        <tr><td>\(\arccos x\)</td><td>\(-\dfrac{1}{\sqrt{1-x^2}}\)</td><td>\(|x| < 1\)</td></tr>
+        <tr><td>\(\arctan x\)</td><td>\(\dfrac{1}{1+x^2}\)</td><td>\(x \in \mathbb{R}\)</td></tr>
+      </table>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 5</span>
+      <h3>\(\arctan x\) の微分を導く（陰関数微分）</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            \(y = \arctan x\) とおくと \(\tan y = x\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            両辺を \(x\) で微分：\(\dfrac{1}{\cos^2 y} \cdot \dfrac{dy}{dx} = 1\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            \(\cos^2 y = \dfrac{1}{1+\tan^2 y} = \dfrac{1}{1+x^2}\) を代入：
+            <div class="formula-box">\[\frac{dy}{dx} = \cos^2 y = \boxed{\frac{1}{1+x^2}}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: 三角関数の積分 ===== -->
+  <div class="section" id="sec2">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-title-wrap">
+        <h2>三角関数の積分</h2>
+        <p>置換積分・部分積分・半角公式を駆使する</p>
+      </div>
+    </div>
+
+    <div class="card formula">
+      <span class="card-label label-formula">基本積分公式</span>
+      <h3>三角関数の基本不定積分</h3>
+      <table class="ref-table">
+        <tr><th>被積分関数</th><th>不定積分</th></tr>
+        <tr><td>\(\sin x\)</td><td>\(-\cos x + C\)</td></tr>
+        <tr><td>\(\cos x\)</td><td>\(\sin x + C\)</td></tr>
+        <tr><td>\(\tan x\)</td><td>\(-\ln|\cos x| + C\)</td></tr>
+        <tr><td>\(\cot x\)</td><td>\(\ln|\sin x| + C\)</td></tr>
+        <tr><td>\(\sec^2 x\)</td><td>\(\tan x + C\)</td></tr>
+        <tr><td>\(\csc^2 x\)</td><td>\(-\cot x + C\)</td></tr>
+        <tr><td>\(\sec x\)</td><td>\(\ln|\sec x + \tan x| + C\)</td></tr>
+      </table>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 6</span>
+      <h3>\(\displaystyle\int \sin(2x+1)\,dx\) を求めよ</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            \(u = 2x+1\) とおくと \(du = 2\,dx\)、すなわち \(dx = \dfrac{du}{2}\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            置換：
+            <div class="formula-box">\[\int \sin u \cdot \frac{du}{2} = \frac{1}{2}\int \sin u\,du = -\frac{1}{2}\cos u + C\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            元の変数に戻す：
+            <div class="formula-box">\[\boxed{-\frac{1}{2}\cos(2x+1) + C}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 7</span>
+      <h3>\(\displaystyle\int \sin^2 x\,dx\) を求めよ</h3>
+      <p>「半角公式」を使う典型問題です。</p>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            半角公式：\(\sin^2 x = \dfrac{1 - \cos 2x}{2}\) を用いる
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="formula-box">\[\int \sin^2 x\,dx = \int \frac{1-\cos 2x}{2}\,dx = \frac{x}{2} - \frac{\sin 2x}{4} + C\]</div>
+            <div class="note">同様に \(\cos^2 x = \dfrac{1+\cos 2x}{2}\) も重要。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            答え：
+            <div class="formula-box">\[\boxed{\frac{x}{2} - \frac{\sin 2x}{4} + C}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 8</span>
+      <h3>\(\displaystyle\int x\cos x\,dx\) を求めよ（部分積分）</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            部分積分の公式：\(\displaystyle\int u\,dv = uv - \int v\,du\)
+            <br>
+            \(u = x\)、\(dv = \cos x\,dx\) とおく → \(du = dx\)、\(v = \sin x\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            適用：
+            <div class="formula-box">\[\int x\cos x\,dx = x\sin x - \int \sin x\,dx\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="formula-box">\[= x\sin x - (-\cos x) + C = \boxed{x\sin x + \cos x + C}\]</div>
+          </div>
+        </div>
+      </div>
+      <div class="tip">部分積分で \(u\) を選ぶ基準：「対数 → 逆三角 → 多項式 → 三角 → 指数」の順（LIATE法則）</div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 9</span>
+      <h3>\(\displaystyle\int \sin^3 x\,dx\) を求めよ</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            \(\sin^3 x = \sin^2 x \cdot \sin x = (1-\cos^2 x)\sin x\) と変形
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            \(t = \cos x\) とおくと \(dt = -\sin x\,dx\)：
+            <div class="formula-box">\[\int (1-t^2)(-dt) = -\int (1-t^2)\,dt = -t + \frac{t^3}{3} + C\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            元に戻す：
+            <div class="formula-box">\[\boxed{-\cos x + \frac{\cos^3 x}{3} + C}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 10</span>
+      <h3>定積分：\(\displaystyle\int_0^{\pi} \sin x\,dx\)</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            不定積分：\(\displaystyle\int \sin x\,dx = -\cos x + C\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            代入：
+            <div class="formula-box">\[\left[-\cos x\right]_0^{\pi} = -\cos\pi - (-\cos 0) = -(-1) + 1 = \boxed{2}\]</div>
+            <div class="note">これは半周分の sin カーブの下の面積に相当します。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: 対数の微分 ===== -->
+  <div class="section" id="sec3">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-title-wrap">
+        <h2>対数関数の微分</h2>
+        <p>\(\ln x\)、\(\log_a x\)、対数微分法</p>
+      </div>
+    </div>
+
+    <div class="card log">
+      <span class="card-label label-log">基本公式</span>
+      <h3>対数関数の微分公式</h3>
+      <table class="ref-table">
+        <tr><th>関数</th><th>導関数</th></tr>
+        <tr><td>\(\ln x\)</td><td>\(\dfrac{1}{x}\)</td></tr>
+        <tr><td>\(\ln|x|\)</td><td>\(\dfrac{1}{x}\)</td></tr>
+        <tr><td>\(\log_a x\)</td><td>\(\dfrac{1}{x\ln a}\)</td></tr>
+        <tr><td>\(e^x\)</td><td>\(e^x\)</td></tr>
+        <tr><td>\(a^x\)</td><td>\(a^x \ln a\)</td></tr>
+      </table>
+      <div class="tip">\(e^x\) の特別な性質：微分しても変わらない！これが \(e\) が「自然な底」たる所以です。</div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 11</span>
+      <h3>\(\ln x\) の微分を定義から導く</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            \(\displaystyle(\ln x)' = \lim_{h\to 0}\frac{\ln(x+h) - \ln x}{h} = \lim_{h\to 0}\frac{1}{h}\ln\left(1+\frac{h}{x}\right)\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            \(t = \dfrac{h}{x}\)（\(h\to 0\) なら \(t\to 0\)）とおくと：
+            <div class="formula-box">\[= \lim_{t\to 0}\frac{1}{xt}\ln(1+t) = \frac{1}{x}\lim_{t\to 0}\frac{\ln(1+t)}{t}\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            重要極限 \(\displaystyle\lim_{t\to 0}\frac{\ln(1+t)}{t} = 1\) を用いる：
+            <div class="formula-box">\[(\ln x)' = \boxed{\frac{1}{x}}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 12</span>
+      <h3>\(f(x) = \ln(x^2 + 1)\) を微分せよ</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            合成関数の微分：外側 \(\ln(\square)\) の微分は \(\dfrac{1}{\square}\)、内側 \(u = x^2+1\) の微分は \(2x\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="formula-box">\[f'(x) = \frac{1}{x^2+1} \cdot 2x = \boxed{\frac{2x}{x^2+1}}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection-title">対数微分法</div>
+
+    <div class="card log">
+      <span class="card-label label-log">対数微分法</span>
+      <h3>対数微分法とは</h3>
+      <p>複雑な積・商・べき乗の微分には、両辺の対数をとってから微分するテクニックが有効です。</p>
+      <div class="formula-box">
+        \[y = f(x) \Rightarrow \ln y = \ln f(x) \Rightarrow \frac{y'}{y} = [\ln f(x)]' \Rightarrow y' = y \cdot [\ln f(x)]'\]
+      </div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 13</span>
+      <h3>\(y = x^x\) を微分せよ（対数微分法）</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            両辺の自然対数をとる：\(\ln y = x\ln x\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            両辺を \(x\) で微分（左辺は合成関数の微分）：
+            <div class="formula-box">\[\frac{y'}{y} = \ln x + x \cdot \frac{1}{x} = \ln x + 1\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            \(y' = y(\ln x + 1)\) に \(y = x^x\) を代入：
+            <div class="formula-box">\[y' = \boxed{x^x(\ln x + 1)}\]</div>
+          </div>
+        </div>
+      </div>
+      <div class="warn">この関数は通常の公式では微分できません。指数に変数がある場合は対数微分法を使いましょう。</div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 14</span>
+      <h3>\(y = \dfrac{\sqrt{x+1}(x^2-1)^3}{(x+2)^5}\) を微分せよ</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            対数をとる：
+            <div class="formula-box">\[\ln y = \frac{1}{2}\ln(x+1) + 3\ln(x^2-1) - 5\ln(x+2)\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            微分：
+            <div class="formula-box">\[\frac{y'}{y} = \frac{1}{2(x+1)} + \frac{6x}{x^2-1} - \frac{5}{x+2}\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            両辺に \(y\) をかけて完成。積・商の公式を使う場合と比べて圧倒的にシンプルです！
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: 対数の積分 ===== -->
+  <div class="section" id="sec4">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div class="section-title-wrap">
+        <h2>対数関数の積分</h2>
+        <p>置換積分・部分積分との組み合わせ</p>
+      </div>
+    </div>
+
+    <div class="card formula">
+      <span class="card-label label-formula">重要公式</span>
+      <h3>対数を含む基本積分</h3>
+      <div class="formula-box">
+        \[\int \frac{1}{x}\,dx = \ln|x| + C\]
+      </div>
+      <div class="formula-box">
+        \[\int \frac{f'(x)}{f(x)}\,dx = \ln|f(x)| + C\]
+      </div>
+      <div class="tip">分子が分母の微分になっているパターンは対数になります！</div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 15</span>
+      <h3>\(\displaystyle\int \frac{2x}{x^2+3}\,dx\) を求めよ</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            分子 \(2x\) は分母 \(x^2+3\) の導関数そのもの！
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            公式 \(\displaystyle\int \frac{f'}{f}\,dx = \ln|f| + C\) を直接適用：
+            <div class="formula-box">\[\boxed{\ln(x^2+3) + C}\]</div>
+            <div class="note">\(x^2+3 > 0\) なので絶対値不要</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 16</span>
+      <h3>\(\displaystyle\int \tan x\,dx\) を求めよ</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            \(\tan x = \dfrac{\sin x}{\cos x}\) と書き直す
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            分子 \(\sin x\) は分母 \(\cos x\) の導関数の \(-1\) 倍（\((\cos x)' = -\sin x\)）
+            <div class="formula-box">\[\int \frac{\sin x}{\cos x}\,dx = -\int \frac{-\sin x}{\cos x}\,dx = -\ln|\cos x| + C\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            答え：\(\boxed{-\ln|\cos x| + C = \ln|\sec x| + C}\)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 17</span>
+      <h3>\(\displaystyle\int \ln x\,dx\) を求めよ（部分積分）</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            \(u = \ln x\)、\(dv = dx\) とおく → \(du = \dfrac{1}{x}dx\)、\(v = x\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            部分積分を適用：
+            <div class="formula-box">\[\int \ln x\,dx = x\ln x - \int x \cdot \frac{1}{x}\,dx = x\ln x - \int 1\,dx\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="formula-box">\[\boxed{x\ln x - x + C}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 18</span>
+      <h3>\(\displaystyle\int x\ln x\,dx\) を求めよ</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            LIATE則より \(u = \ln x\)、\(dv = x\,dx\)<br>
+            → \(du = \dfrac{1}{x}dx\)、\(v = \dfrac{x^2}{2}\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="formula-box">\[\int x\ln x\,dx = \frac{x^2}{2}\ln x - \int \frac{x^2}{2} \cdot \frac{1}{x}\,dx = \frac{x^2}{2}\ln x - \frac{1}{2}\int x\,dx\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="formula-box">\[\boxed{\frac{x^2}{2}\ln x - \frac{x^2}{4} + C}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card example">
+      <span class="card-label label-example">例題 19</span>
+      <h3>\(\displaystyle\int \frac{\ln x}{x}\,dx\) を求めよ（置換）</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            \(t = \ln x\) とおくと \(dt = \dfrac{1}{x}dx\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="formula-box">\[\int \frac{\ln x}{x}\,dx = \int t\,dt = \frac{t^2}{2} + C = \boxed{\frac{(\ln x)^2}{2} + C}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 5: 発展・応用 ===== -->
+  <div class="section" id="sec5">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div class="section-title-wrap">
+        <h2>発展・応用問題</h2>
+        <p>入試・大学レベルの応用問題</p>
+      </div>
+    </div>
+
+    <div class="card advanced">
+      <span class="card-label label-key">発展</span>
+      <h3>繰り返し部分積分：\(\displaystyle\int e^x \sin x\,dx\)</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            \(I = \displaystyle\int e^x \sin x\,dx\) とおく。\(u = \sin x\)、\(dv = e^x dx\)：
+            <div class="formula-box">\[I = e^x \sin x - \int e^x \cos x\,dx\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            \(\displaystyle\int e^x \cos x\,dx\) にも部分積分（\(u = \cos x\)、\(dv = e^x dx\)）：
+            <div class="formula-box">\[\int e^x \cos x\,dx = e^x \cos x + \int e^x \sin x\,dx = e^x \cos x + I\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            \(I = e^x \sin x - (e^x \cos x + I)\) より \(2I = e^x(\sin x - \cos x)\)：
+            <div class="formula-box">\[I = \boxed{\frac{e^x(\sin x - \cos x)}{2} + C}\]</div>
+          </div>
+        </div>
+      </div>
+      <div class="tip">「元に戻る」パターン！方程式として \(I\) を解くのがポイントです。</div>
+    </div>
+
+    <div class="card advanced">
+      <span class="card-label label-key">発展</span>
+      <h3>ウォリス積分：\(\displaystyle\int_0^{\pi/2} \sin^n x\,dx\)</h3>
+      <p>漸化式を使って解きます。</p>
+      <div class="formula-box">
+        \[I_n = \int_0^{\pi/2} \sin^n x\,dx\]
+      </div>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            部分積分で漸化式を導出：\(\sin^n x = \sin^{n-1}x \cdot \sin x\) として部分積分すると：
+            <div class="formula-box">\[I_n = \frac{n-1}{n} I_{n-2}\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            \(I_0 = \dfrac{\pi}{2}\)、\(I_1 = 1\) を初期値として：
+            <div class="formula-box">
+              \[I_{2m} = \frac{(2m-1)!!}{(2m)!!}\cdot\frac{\pi}{2}, \quad I_{2m+1} = \frac{(2m)!!}{(2m+1)!!}\]
+            </div>
+            <div class="note">例：\(I_4 = \dfrac{3}{4} \cdot \dfrac{1}{2} \cdot \dfrac{\pi}{2} = \dfrac{3\pi}{16}\)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card advanced">
+      <span class="card-label label-key">発展</span>
+      <h3>三角置換：\(\displaystyle\int \frac{1}{\sqrt{1-x^2}}\,dx\)</h3>
+      <div class="example-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            \(x = \sin\theta\)（\(-\dfrac{\pi}{2} \le \theta \le \dfrac{\pi}{2}\)）とおくと \(dx = \cos\theta\,d\theta\)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            \(\sqrt{1-x^2} = \sqrt{1-\sin^2\theta} = \cos\theta\)（この範囲で \(\cos\theta \ge 0\)）
+            <div class="formula-box">\[\int \frac{\cos\theta\,d\theta}{\cos\theta} = \int d\theta = \theta + C\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            \(\theta = \arcsin x\) に戻す：
+            <div class="formula-box">\[\boxed{\arcsin x + C}\]</div>
+          </div>
+        </div>
+      </div>
+      <div class="tip">三角置換の使い分け：<br>
+      \(\sqrt{a^2-x^2}\) → \(x = a\sin\theta\)<br>
+      \(\sqrt{a^2+x^2}\) → \(x = a\tan\theta\)<br>
+      \(\sqrt{x^2-a^2}\) → \(x = a/\cos\theta\)</div>
+    </div>
+
+    <div class="card advanced">
+      <span class="card-label label-key">発展</span>
+      <h3>マクローリン展開（三角・指数・対数）</h3>
+      <p>微分を繰り返すことで関数をべき級数に展開できます。</p>
+      <div class="formula-box" style="text-align:left">
+        \[\sin x = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \cdots = \sum_{n=0}^{\infty}\frac{(-1)^n x^{2n+1}}{(2n+1)!}\]
+        \[\cos x = 1 - \frac{x^2}{2!} + \frac{x^4}{4!} - \cdots = \sum_{n=0}^{\infty}\frac{(-1)^n x^{2n}}{(2n)!}\]
+        \[e^x = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots = \sum_{n=0}^{\infty}\frac{x^n}{n!}\]
+        \[\ln(1+x) = x - \frac{x^2}{2} + \frac{x^3}{3} - \cdots = \sum_{n=1}^{\infty}\frac{(-1)^{n+1}x^n}{n} \quad (|x|\le 1)\]
+      </div>
+      <div class="highlight">
+        <strong>オイラーの公式（最も美しい等式）：</strong>
+        \[e^{i\theta} = \cos\theta + i\sin\theta \Rightarrow e^{i\pi} + 1 = 0\]
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 6: 公式一覧 ===== -->
+  <div class="section" id="sec6">
+    <div class="section-header">
+      <div class="section-num">07</div>
+      <div class="section-title-wrap">
+        <h2>公式一覧</h2>
+        <p>試験前に確認すべき全公式まとめ</p>
+      </div>
+    </div>
+
+    <div class="subsection-title">微分公式</div>
+
+    <div class="card formula">
+      <span class="card-label label-formula">微分</span>
+      <h3>三角・逆三角・対数・指数の微分</h3>
+      <table class="ref-table">
+        <tr><th>関数 \(f(x)\)</th><th>導関数 \(f'(x)\)</th><th>備考</th></tr>
+        <tr><td>\(\sin x\)</td><td>\(\cos x\)</td><td></td></tr>
+        <tr><td>\(\cos x\)</td><td>\(-\sin x\)</td><td></td></tr>
+        <tr><td>\(\tan x\)</td><td>\(\sec^2 x = \dfrac{1}{\cos^2 x}\)</td><td>\(x \ne \dfrac{\pi}{2}+n\pi\)</td></tr>
+        <tr><td>\(\arcsin x\)</td><td>\(\dfrac{1}{\sqrt{1-x^2}}\)</td><td>\(|x|<1\)</td></tr>
+        <tr><td>\(\arccos x\)</td><td>\(-\dfrac{1}{\sqrt{1-x^2}}\)</td><td>\(|x|<1\)</td></tr>
+        <tr><td>\(\arctan x\)</td><td>\(\dfrac{1}{1+x^2}\)</td><td></td></tr>
+        <tr><td>\(\ln x\)</td><td>\(\dfrac{1}{x}\)</td><td>\(x>0\)</td></tr>
+        <tr><td>\(\ln|x|\)</td><td>\(\dfrac{1}{x}\)</td><td>\(x\ne 0\)</td></tr>
+        <tr><td>\(\log_a x\)</td><td>\(\dfrac{1}{x\ln a}\)</td><td>\(a>0, a\ne 1\)</td></tr>
+        <tr><td>\(e^x\)</td><td>\(e^x\)</td><td></td></tr>
+        <tr><td>\(a^x\)</td><td>\(a^x \ln a\)</td><td>\(a>0, a\ne 1\)</td></tr>
+        <tr><td>\(x^x\)</td><td>\(x^x(\ln x+1)\)</td><td>対数微分法</td></tr>
+      </table>
+    </div>
+
+    <div class="subsection-title">積分公式</div>
+
+    <div class="card formula">
+      <span class="card-label label-formula">積分</span>
+      <h3>三角・対数・指数の不定積分</h3>
+      <table class="ref-table">
+        <tr><th>被積分関数</th><th>不定積分（\(+C\) 省略）</th></tr>
+        <tr><td>\(\sin x\)</td><td>\(-\cos x\)</td></tr>
+        <tr><td>\(\cos x\)</td><td>\(\sin x\)</td></tr>
+        <tr><td>\(\tan x\)</td><td>\(-\ln|\cos x|\)</td></tr>
+        <tr><td>\(\sin^2 x\)</td><td>\(\dfrac{x}{2} - \dfrac{\sin 2x}{4}\)</td></tr>
+        <tr><td>\(\cos^2 x\)</td><td>\(\dfrac{x}{2} + \dfrac{\sin 2x}{4}\)</td></tr>
+        <tr><td>\(\dfrac{1}{1+x^2}\)</td><td>\(\arctan x\)</td></tr>
+        <tr><td>\(\dfrac{1}{\sqrt{1-x^2}}\)</td><td>\(\arcsin x\)</td></tr>
+        <tr><td>\(\dfrac{1}{x}\)</td><td>\(\ln|x|\)</td></tr>
+        <tr><td>\(\dfrac{f'(x)}{f(x)}\)</td><td>\(\ln|f(x)|\)</td></tr>
+        <tr><td>\(\ln x\)</td><td>\(x\ln x - x\)</td></tr>
+        <tr><td>\(e^x\)</td><td>\(e^x\)</td></tr>
+        <tr><td>\(e^x\sin x\)</td><td>\(\dfrac{e^x(\sin x-\cos x)}{2}\)</td></tr>
+        <tr><td>\(e^x\cos x\)</td><td>\(\dfrac{e^x(\sin x+\cos x)}{2}\)</td></tr>
+      </table>
+    </div>
+
+    <div class="subsection-title">重要な極限</div>
+
+    <div class="card formula">
+      <span class="card-label label-formula">極限</span>
+      <h3>微積分で必須の重要極限</h3>
+      <div class="grid-2">
+        <div class="formula-box">\[\lim_{x\to 0}\frac{\sin x}{x} = 1\]</div>
+        <div class="formula-box">\[\lim_{x\to 0}\frac{1-\cos x}{x^2} = \frac{1}{2}\]</div>
+        <div class="formula-box">\[\lim_{x\to 0}\frac{\ln(1+x)}{x} = 1\]</div>
+        <div class="formula-box">\[\lim_{x\to 0}\frac{e^x-1}{x} = 1\]</div>
+        <div class="formula-box">\[\lim_{x\to\infty}\left(1+\frac{1}{x}\right)^x = e\]</div>
+        <div class="formula-box">\[\lim_{x\to\infty}\frac{\ln x}{x} = 0\]</div>
+      </div>
+    </div>
+
+    <div class="subsection-title">三角関数の恒等式（積分変換に使う）</div>
+
+    <div class="card formula">
+      <span class="card-label label-formula">恒等式</span>
+      <h3>積分計算に使う重要な恒等式</h3>
+      <div class="formula-box" style="text-align:left">
+        <strong>半角公式：</strong><br>
+        \[\sin^2\theta = \frac{1-\cos 2\theta}{2}, \quad \cos^2\theta = \frac{1+\cos 2\theta}{2}\]
+        <br><strong>積和公式：</strong><br>
+        \[\sin\alpha\cos\beta = \frac{1}{2}[\sin(\alpha+\beta)+\sin(\alpha-\beta)]\]
+        \[\cos\alpha\cos\beta = \frac{1}{2}[\cos(\alpha+\beta)+\cos(\alpha-\beta)]\]
+        \[\sin\alpha\sin\beta = -\frac{1}{2}[\cos(\alpha+\beta)-\cos(\alpha-\beta)]\]
+        <br><strong>加法定理：</strong><br>
+        \[\sin(\alpha\pm\beta) = \sin\alpha\cos\beta\pm\cos\alpha\sin\beta\]
+        \[\cos(\alpha\pm\beta) = \cos\alpha\cos\beta\mp\sin\alpha\sin\beta\]
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+  // Tab switching
+  function showSection(idx) {
+    document.querySelectorAll('.section').forEach((s,i) => {
+      s.classList.toggle('active', i === idx);
+    });
+    document.querySelectorAll('.nav-tab').forEach((t,i) => {
+      t.classList.toggle('active', i === idx);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Re-render MathJax
+    if (window.MathJax) MathJax.typesetPromise();
+  }
+
+  // Toggle answers
+  function toggleAnswer(btn) {
+    const content = btn.nextElementSibling;
+    content.classList.toggle('open');
+    btn.textContent = content.classList.contains('open') ? '▲ 解答を隠す' : '▼ 解答を見る';
+  }
+
+  // Initial MathJax render
+  window.addEventListener('load', () => {
+    if (window.MathJax) {
+      MathJax.typesetPromise().catch(console.error);
+    }
+  });
+</script>
+
+</body>
+</html>
